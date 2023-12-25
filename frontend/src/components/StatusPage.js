@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useGlobalContext } from "@/contexts/GlobalContext";
 import io from "socket.io-client";
-
-console.log(process.env.NEXT_PUBLIC_SERVER_URL);
 
 const socket = io(process.env.NEXT_PUBLIC_SERVER_URL);
 
 const StatusPage = () => {
   const [status, setStatus] = useState("");
+  const { user, handleLogout } = useGlobalContext();
 
   useEffect(() => {
     const handleOperationStatus = (message) => {
@@ -26,14 +26,28 @@ const StatusPage = () => {
   };
 
   return (
-    <div className="flex flex-col text-center space-y-6">
-      <h1 className="text-2xl uppercase">Real-time Notifications</h1>
-      <p>Status: {status}</p>
+    <div className="flex flex-col max-w-lg mx-auto my-auto h-screen">
+      <div className="relative flex flex-col text-center space-y-6">
+        <h1 className="text-2xl uppercase">Real-time Notifications</h1>
+        {user ? (
+          <p>Hello {user && user.name}</p>
+        ) : (
+          <div className="">Loading..</div>
+        )}
+
+        {status && <p>Status: {status}</p>}
+        <button
+          className="border border-green-500 text-green-500 shadow-md rounded-md px-4 py-2"
+          onClick={startOperation}
+        >
+          Start Operation
+        </button>
+      </div>
       <button
-        className="border border-green-500 text-green-500 shadow-md rounded-md px-4 py-2"
-        onClick={startOperation}
+        className="absolute right-10 top-10 border border-red-500 text-red-500 shadow-md rounded-md px-4 py-2"
+        onClick={handleLogout}
       >
-        Start Operation
+        Logout
       </button>
     </div>
   );

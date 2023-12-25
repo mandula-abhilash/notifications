@@ -1,21 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
-
-import LoginForm from "../components/LoginForm";
-import StatusPage from "../components/StatusPage";
+import { GlobalProvider } from "@/contexts/GlobalContext";
+import Main from "./Main";
 
 const Page = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  const handleLogin = () => {
-    setLoggedIn(true);
-  };
-
   return (
-    <div>
-      {!loggedIn ? <LoginForm onLogin={handleLogin} /> : <StatusPage />}
-    </div>
+    <GlobalProvider>
+      <Main />
+    </GlobalProvider>
   );
 };
 

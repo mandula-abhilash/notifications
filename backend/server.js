@@ -1,8 +1,9 @@
-import express from "express";
+import express, { json } from "express";
 import { createServer } from "http";
 
 import dotenv from "dotenv";
 import cors from "cors";
+import colors from "colors";
 
 import RedisStore from "connect-redis";
 import session from "express-session";
@@ -11,7 +12,13 @@ import { Server } from "socket.io";
 
 import amqp from "amqplib";
 
+import connectToMongoDB from "./config/mongo_db.js";
+
+import userRoutes from "./routes/userRoutes.js";
+
 dotenv.config();
+
+connectToMongoDB();
 
 const app = express();
 
@@ -21,6 +28,11 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(json({ limit: "10MB" }));
+
+// use routes
+app.use("/api/users", userRoutes);
 
 const server = createServer(app);
 const io = new Server(server, {
