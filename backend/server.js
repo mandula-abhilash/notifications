@@ -1,6 +1,8 @@
 import express from "express";
 import { createServer } from "http";
+
 import dotenv from "dotenv";
+import cors from "cors";
 
 import RedisStore from "connect-redis";
 import session from "express-session";
@@ -12,8 +14,22 @@ import amqp from "amqplib";
 dotenv.config();
 
 const app = express();
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
+
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 let redisClient = createClient({
   password: process.env.REDIS_PASSWORD,
@@ -51,12 +67,14 @@ async function startRabbitMQ() {
   });
 
   io.on("connection", (socket) => {
-    console.log("New client connected");
+    console.log("New client connected, ID:", socket.id);
 
     socket.on("startOperation", async () => {
+      console.log("Operation started for:", socket.id);
       // Simulate a time-consuming operation
       setTimeout(() => {
         const message = { status: "Operation completed", userId: socket.id };
+        console.log("Publishing message:", message);
         channel.publish(
           EXCHANGE_NAME,
           "",
